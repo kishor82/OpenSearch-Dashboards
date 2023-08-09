@@ -1,0 +1,51 @@
+# Set existing ssh as a signing key:
+ $ git config user.signingkey <ssh_pub_key_path> 
+ $ git config gpg.format ssh
+
+# Set gpg key as signing key:
+- remove previously configured gpg format (default id openpgp)
+$ git config --global --unset gpg.format
+$ git config user.signingkey <GPG key>
+
+# How to find your gpg key:
+$ gpg --list-secret-keys --keyid-format=long
+- Look for the keyID (sec rsaNNNN/XXXXXXXX YYYY-MM-DD [expires: YYYY-MM-DD])
+- XXXXXXXX is keyID you wanna use as GPG key
+
+# for more info visit : https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key
+
+
+1 - Signing previous n commits
+$ git rebase -i HEAD~n
+
+2 - Edit Commits to Sign:
+In the interactive rebase interface, you'll see a list of commits with the word "pick" at the beginning of each line. Change "pick" to "edit" for the commits you want to sign. For example:
+
+`edit a1b2c3d First commit
+edit e4f5g6h Second commit
+# ... more commits ...`
+
+Save and close the file
+
+3 -  Sign Commits:
+
+Git will now stop at each of the selected commits. When the rebase process pauses at each commit, use the following command to sign the commit:
+
+$ git commit --amend -S --no-edit
+
+This command will amend the commit, sign it with your GPG key, and keep the original commit message.
+
+4 - Continue Rebase:
+After signing each commit, use the following command to continue the rebase:
+$ git rebase --continue
+
+Git will move to the next commit in the list. Repeat steps 3 and 4 for each commit you want to sign.
+
+5 - Force-Push Changes:
+Once you've signed all the desired commits, you'll need to force-push the changes to update your remote repository:
+
+$ git push --force
+
+NOTE: Keep in mind that force-pushing rewrites history, so use caution, especially if collaborating with others.
+
+After completing these steps, your selected commits will be signed with your GPG key/ssh key. You can verify their status on GitHub to ensure they are marked as verified.
